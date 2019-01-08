@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<link href="https://fonts.googleapis.com/css?family=Luckiest+Guy" rel="stylesheet">
+	<style>
+	*, *:after, *:before {box-sizing: border-box;}
+		.luck{ font-family: 'Luckiest Guy', cursive; }
+		.border-right{ border-right: 2px solid #000; }
+		.width-t{ width: 450px; }
+		.margin-auto{ margin: 0 auto; }
+		.bottom{ border-bottom: 2px solid #000; }
+		.collapse{ border-collapse: collapse; }
+		.img-x{ 
+			background: url('images/x.png') center center no-repeat;
+			background-size: 125px;
+		}
+		.img-0{ 
+			background: url('images/o.png') center center no-repeat;
+			background-size: 125px;
+		}
+		.td-size{
+			height: 150px;
+			width: 150px;
+			overflow: hidden;
+		}
+		.border-b{ border-bottom: 2px solid #000; }
+		.align{ text-align: center; }
+		.blue{ color: #00f; }
+		.white{ color: #fff; }
+		.p-size{ font-size: 50px; }
+		.inline-block{ display: inline-block; }
+		.padding-r{ padding-right: 20px; }
+		.padding-l{ padding-left: 20px; }
+		.score-div{ width: 225px; }
+		.score1{ width: 605px; }
+		.td-m{ padding: 10px; }
+		.upper{ text-transform: uppercase; }
+		.black{ color: #000; }
+		.m-top-0{ margin-top: 0; }
+		.m-bottom-0{ margin-bottom: 0; }
+		.p-top{ padding-top: 20px; }
+		.p-bottom{ padding-bottom: 20px; }
+		.span-line{
+			top: -3px;
+			height: 6px;
+			width: 100%;
+			background-color: #000;
+		}
+		/* .l-20{ left: 20px; } */
+		.line1{ width: 135%; }
+		.pos-r{ position: relative; }
+		.pos-a{ position: absolute; }
+		.rotate{ transform: rotate(45deg); }
+		.rotate-rev{ transform: rotate(135deg); }
+		.rotate90{ transform: rotate(90deg); }
+		.top-d1 { top: 19.7%; }
+		.origin{ transform-origin: 0; }
+		.display-none{ display: none;  }
+		.display-block{ display: block }
+		.d-rev{ left: 100%; }
+	</style>
+</head>
+<body>
+	<div class="margin-auto width-t ">
+		<p class="align luck upper p-size m-top-0 m-bottom-0 width-t margin-auto border-b p-bottom">tip tac toe</p>
+		<h2 class="align winner white m-top-0 m-bottom-0 luck p-top p-bottom">winner</h2>
+		<div class="pos-r center " id="div">
+			<span class="span-line pos-a origin display-none" id="line"></span>
+			<table class="collapse white ">
+			  <tr class="bottom">
+			    <td class="border-right td-size ">1</td>
+			    <td class="border-right td-size ">2</td> 
+			    <td class="td-size ">3</td>
+			  </tr>
+			  <tr class="bottom">
+			    <td class="border-right td-size ">4</td>
+			    <td class="border-right td-size ">5</td> 
+			    <td class=" td-size ">6</td>
+			  </tr>
+			  <tr>
+			    <td class="border-right td-size ">7</td>
+			    <td class="border-right td-size ">8</td> 
+			    <td class=" td-size ">9</td>
+			  </tr>
+			</table>
+		</div>
+
+		<div class="score1 margin-auto">
+			<h3 class="align scorex inline-block border-right padding-r score-div luck p-top p-bottom">Score X : 0</h3>
+			<h3 class="align score0 inline-block padding-l score-div luck p-top p-bottom">Score 0 : 0</h3>
+		</div>
+	</div>
+</body>
+
+<script
+	src="https://code.jquery.com/jquery-2.2.4.min.js"
+	integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44="
+	crossorigin="anonymous"></script>
+	<script>
+		var n = 0;
+		var icon = "";
+		var scorex = 0;
+		var score0 = 0;
+		var winner = '';
+		var click ;
+		$("td").click(function() {
+			if ( winner !== "") { return false; }
+			click = $(this);
+			if ( click.hasClass("img-x") || click.hasClass("img-0") ) {
+				return false;
+			}
+
+			if (n==0) {
+				icon = "img-x";
+				txt = "x";
+				n = 1;
+			} else {
+				icon ="img-0";
+				txt = "0";
+				n = 0;
+			}
+			click.addClass(icon).text(txt);	
+
+			var mm_index = $(this).parent().index();
+			var mm_in = $(this).index();
+			
+			if( check(horizontal(mm_index)) ) { line(mm_index, "top", 0); return false}
+			if( check(vertical(mm_in)) ) { line(mm_in, "left", 1); return false}
+
+			if( check(diognal()) ) { dline(); return false}
+			if( check(diognal_rev()) ) { d_rev_line(); return false}
+
+		});
+
+		function check(str) {
+			if(str === 'xxx' || str === '000') {
+				$(".winner").css('color', "#000");
+				if (n !== 0) {
+					winner = "X you win";
+					scorex += 1;
+				} else {
+					winner = "0 you win";
+					score0 = score0 + 1;
+				}
+				$('.scorex').text("Score X : " + scorex);
+				$('.score0').text("Score 0 : " + score0);
+				setTimeout(start, 3000);
+				$('.winner').text(winner);
+				//console.log("abs");
+				return true;
+			}
+			if ( str !== 'xxx' && str !== '000' && checkclass() > 4) {
+				$(".winner").css('color', "#000");
+				$('.winner').text("Tie");
+				setTimeout(start, 4000);
+			}
+			return false;
+		}
+
+		function checkclass() {
+			var tdlen = $('td.img-x').length;
+			return tdlen;
+		}
+
+		function horizontal(index) {
+				var a = '';
+				a += $('tr').eq(index).find('td').text();
+				return a;
+			}
+
+			function vertical(index) {
+				var a = '';
+				$('tr').each(function (i, el) {
+					a += $(el).find('td').eq(index).text();
+				})
+				return a;
+			}
+
+			function diognal() {
+				var a = '';
+				$('tr').each(function (i, el) {
+					a += $(el).find('td').eq(i).text();
+				});
+				//console.log(a);
+				return a;
+			}
+
+			function diognal_rev() {
+				var a = '';
+				$('tr').each(function (i, el) {
+					a += $(el).find('td').eq($("tr").length -1 - i).text();
+				});
+				return a;
+			}
+
+			function start(){
+				$('.winner').css("color","white");
+				winner = "";
+				n=0;
+				$("td").each(function(i, el){
+					$(el).removeClass("img-x img-0").text(i+1);
+				});
+				$('#line').removeClass("display-block rotate d-rew rotate-rev rotate90 line1");
+				$('#line').addClass("display-none");
+				$('#line').css({"top":"0px", "left":"0px"});
+				t = 75;
+				if ( winner == "") { return true;}
+			}
+
+		function dline() {
+			$('#line').removeClass('display-none');
+			$('#line').addClass("rotate display-block line1");
+		}
+
+		function d_rev_line() {
+			$('#line').removeClass('display-none');
+			$('#line').addClass("rotate-rev display-block line1");
+			$('#line').css({"left":"100%"})
+
+		}
+		var t= 75;
+		/*function hline(index) {
+			$('#line').removeClass('display-none');
+			if ( index == 0 ) {
+				$('#line').css("top", t+"px");
+			}if ( index == 1 ) {
+				t += 150;
+				$('#line').css("top", t+"px");
+			}if ( index == 2 ) {
+				t += 305;
+				$('#line').css("top", t+"px");
+				console.log( "index 2");
+			}
+		}		
+		function vline(index) {
+			$('#line').removeClass('display-none');
+			$('#line').addClass('rotate90');
+			if ( index == 0 ) {
+				$('#line').css("left", t+"px");
+
+			}if ( index == 1 ) {
+			 t += 150;
+				$('#line').css("left", t+"px");
+			}if ( index == 2 ) {
+				t += 305;
+				$('#line').css("left", t+"px");
+			}
+		}*/
+
+		function line( index, side, rotate) {
+			$('#line').removeClass('display-none');
+			if ( rotate == 1) {
+				$('#line').addClass('rotate90');
+			}
+			if ( index == 0 ) {
+				$('#line').css(side, t+"px");
+			}if ( index == 1 ) {
+			 	t += 150;
+				$('#line').css(side, t+"px");
+			}if ( index == 2 ) {
+				t += 305;
+				$('#line').css(side, t+"px");
+			}
+		}
+	</script>
+</html>
